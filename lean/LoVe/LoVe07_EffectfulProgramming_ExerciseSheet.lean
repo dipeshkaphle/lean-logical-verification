@@ -52,7 +52,7 @@ instance Option.LawfulMonadWithOrelse :
     emp          := Option.none
     orelse       := Option.orelse
     emp_orelse   :=
-      sorry
+      by simp [Option.orelse]
     orelse_emp   :=
       by
         intro α ma
@@ -60,20 +60,26 @@ instance Option.LawfulMonadWithOrelse :
         cases ma
         { rfl }
         { rfl }
-    orelse_assoc :=
-      sorry
+    orelse_assoc := by
+          intro A ma mb mc
+          simp [Option.orelse] at *
+          cases ma
+          · simp
+          · simp
     emp_bind     :=
       by
         intro α β f
         simp [Bind.bind]
         rfl
-    bind_emp     :=
-      sorry
+    bind_emp     := by
+      intro A B ma
+      simp
   }
 
 @[simp] theorem Option.some_bind {α β : Type} (a : α) (g : α → Option β) :
-    (Option.some a >>= g) = g a :=
-  sorry
+    (Option.some a >>= g) = g a := by
+    simp
+
 
 /- 1.2. Now we are ready to define `FAction σ`: a monad with an internal state
 of type `σ` that can fail (unlike `Action σ`).
@@ -91,17 +97,18 @@ Hints:
 * `FAction` is very similar to `Action` from the lecture's demo. You can look
   there for inspiration. -/
 
-def FAction (σ : Type) (α : Type) : Type :=
-  sorry
+def FAction (σ : Type) (α : Type) : Type := (σ -> Option (α × σ))
+  
 
 /- 1.3. Define the `get` and `set` function for `FAction`, where `get` returns
 the state passed along the state monad and `set s` changes the state to `s`. -/
 
 def get {σ : Type} : FAction σ σ :=
-  sorry
+  fun s => Option.some ( s, s)
 
 def set {σ : Type} (s : σ) : FAction σ Unit :=
-  sorry
+    fun _ => Option.some ( Unit.unit, s)
+
 
 /- We set up the `>>=` syntax on `FAction`: -/
 
@@ -121,7 +128,7 @@ theorem FAction.bind_apply {σ α β : Type} (f : FAction σ α)
 satisfy the three laws. -/
 
 def FAction.pure {σ α : Type} (a : α) : FAction σ α :=
-  sorry
+  fun s => Option.some (a, s)
 
 /- We set up the syntax for `pure` on `FAction`: -/
 
@@ -145,7 +152,8 @@ instance FAction.LawfulMonad {σ : Type} : LawfulMonad (FAction σ) :=
   { FAction.Bind, FAction.Pure with
     pure_bind :=
       by
-      sorry
+        intro A B a f
+        rfl
     bind_pure :=
       by
         intro α ma
@@ -159,7 +167,13 @@ instance FAction.LawfulMonad {σ : Type} : LawfulMonad (FAction σ) :=
           by apply LawfulMonad.bind_pure
         aesop
     bind_assoc :=
-      sorry
+      by
+        intro A B C f g ma
+        unfold FAction at *
+        funext
+        rw [FAction.bind_apply _ _ _]
+        rw [FAction.bind_apply _ _ _]
+        sorry -- frustrating , i don't know how to proceed, TODO
   }
 
 

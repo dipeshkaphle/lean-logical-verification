@@ -1,6 +1,7 @@
 /- Copyright © 2018–2025 Anne Baanen, Alexander Bentkamp, Jasmin Blanchette,
 Xavier Généreux, Johannes Hölzl, and Jannis Limperg. See `LICENSE.txt`. -/
 
+import Aesop
 import LoVe.LoVe03_BackwardProofs_ExerciseSheet
 
 
@@ -26,28 +27,37 @@ Hint: Some strategies for carrying out such proofs are described at the end of
 Section 3.3 in the Hitchhiker's Guide. -/
 
 theorem B (a b c : Prop) :
-    (a → b) → (c → a) → c → b :=
-  sorry
+    (a → b) → (c → a) → c → b := by
+  intro ab ca c
+  exact (ab (ca c))
+  
 
 theorem S (a b c : Prop) :
-    (a → b → c) → (a → b) → a → c :=
-  sorry
+    (a → b → c) → (a → b) → a → c := by
+    intro fab fa a
+    exact (fab a (fa a))
 
 theorem more_nonsense (a b c d : Prop) :
-    ((a → b) → c → d) → c → b → d :=
-  sorry
+    ((a → b) → c → d) → c → b → d := by
+  aesop
 
 theorem even_more_nonsense (a b c : Prop) :
-    (a → b) → (a → c) → a → b → c :=
-  sorry
+    (a → b) → (a → c) → a → b → c := by
+  aesop
 
 /- 1.2 (1 point). Prove the following theorem using basic tactics. -/
 
 theorem weak_peirce (a b : Prop) :
-    ((((a → b) → a) → a) → b) → b :=
-  sorry
-
-
+    ((((a → b) → a) → a) → b) → b := by
+  intro f'
+  apply f'
+  intro f''
+  apply f''
+  intro a
+  apply f'
+  intro
+  assumption
+  
 /- ## Question 2 (5 points): Logical Connectives
 
 2.1 (1 point). Prove the following property about double negation using basic
@@ -62,8 +72,9 @@ Hints:
   proof. -/
 
 theorem herman (a : Prop) :
-    ¬¬ (¬¬ a → a) :=
-  sorry
+    ¬¬ (¬¬ a → a) := by
+  simp
+
 
 /- 2.2 (2 points). Prove the missing link in our chain of classical axiom
 implications.
@@ -87,9 +98,14 @@ Hints:
 #check ExcludedMiddle
 
 theorem EM_of_DN :
-    DoubleNegation → ExcludedMiddle :=
-  sorry
+    DoubleNegation → ExcludedMiddle := by
+    unfold DoubleNegation ExcludedMiddle Not
+    intro dn P
+    apply dn
 
+    
+
+      
 /- 2.3 (2 points). We have proved three of the six possible implications
 between `ExcludedMiddle`, `Peirce`, and `DoubleNegation`. State and prove the
 three missing implications, exploiting the three theorems we already have. -/

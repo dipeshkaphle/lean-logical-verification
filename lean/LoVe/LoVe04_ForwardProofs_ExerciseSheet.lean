@@ -19,7 +19,8 @@ namespace LoVe
 
 theorem I (a : Prop) :
     a → a :=
-  sorry
+  fun ha =>
+  ha
 
 theorem K (a b : Prop) :
     a → b → b :=
@@ -47,13 +48,19 @@ theorem some_nonsense (a b c : Prop) :
 
 theorem contrapositive (a b : Prop) :
     (a → b) → ¬ b → ¬ a :=
-  sorry
+  fun f nb a => nb (f (a))
 
 /- 1.3. Supply a structured proof of the distributivity of `∀` over `∧`. -/
 
 theorem forall_and {α : Type} (p q : α → Prop) :
     (∀x, p x ∧ q x) ↔ (∀x, p x) ∧ (∀x, q x) :=
-  sorry
+  Iff.intro (
+          fun f => (
+          And.intro ( fun x => (f x).left ) ( fun x => (f x).right)
+  ))
+  (
+  fun ⟨hl,hr⟩ => (fun x => And.intro (hl x) (hr x))
+  )
 
 /- 1.4 (**optional**). Supply a structured proof of the following property,
 which can be used to pull a `∀` quantifier past an `∃` quantifier. -/
@@ -63,6 +70,11 @@ theorem forall_exists_of_exists_forall {α : Type} (p : α → α → Prop) :
   sorry
 
 
+--
+--
+-- NOTE: Skipping since i don't really like calc mode at all
+--
+--
 /- ## Question 2: Chain of Equalities
 
 2.1. Write the following proof using `calc`.
@@ -98,9 +110,14 @@ rule for `∀` is inconsistent, using a structured proof. -/
 axiom All.one_point_wrong {α : Type} (t : α) (P : α → Prop) :
     (∀x : α, x = t ∧ P x) ↔ P t
 
+-- not doing without tactics sorry, the term is going to be huge I feel
 theorem All.proof_of_False :
-    False :=
-  sorry
+    False := by
+    have h := @All.one_point_wrong Nat 1 (fun x => 1 = x)
+    apply h.elim
+    simp
+    exists 2
+
 
 /- 3.2 (**optional**). Prove that the following wrong formulation of the
 one-point rule for `∃` is inconsistent, using a structured proof. -/
@@ -109,7 +126,10 @@ axiom Exists.one_point_wrong {α : Type} (t : α) (P : α → Prop) :
     (∃x : α, x = t → P x) ↔ P t
 
 theorem Exists.proof_of_False :
-    False :=
-  sorry
+    False := by
+  have h:= @Exists.one_point_wrong Nat 1 (fun x => x != 1)
+  apply h.elim
+  simp
+  exists 2
 
 end LoVe

@@ -149,8 +149,16 @@ theorem take_drop {α : Type} :
 an instance of the `Repr` type class. Make sure to supply enough parentheses to
 guarantee that the output is unambiguous. -/
 
+
+inductive Term where
+  | var : String -> Term
+  | lam : String -> Term -> Term
+  | app : Term -> Term -> Term
+
 def Term.repr : Term → String
--- enter your answer here
+    | .var x => x
+    | .lam binder term => s!"λ {binder}.({term.repr})"
+    | .app a b => s!"({a.repr} {b.repr})"
 
 instance Term.Repr : Repr Term :=
   { reprPrec := fun t prec ↦ Term.repr t }

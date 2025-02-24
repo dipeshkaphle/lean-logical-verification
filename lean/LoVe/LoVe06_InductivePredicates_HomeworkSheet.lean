@@ -3,7 +3,6 @@ Xavier Généreux, Johannes Hölzl, and Jannis Limperg. See `LICENSE.txt`. -/
 
 import LoVe.LoVelib
 
-
 /- # LoVe Homework 6 (10 points): Inductive Predicates
 
 Replace the placeholders (e.g., `:= sorry`) with your solutions. -/
@@ -29,21 +28,24 @@ its argument is of the form `Term.lam …` and that returns `False` otherwise. -
 
 -- enter your definition here
 
+def IsLam : ( term: Term ) -> Prop
+    | .lam _ _ => True
+    | _ => False
+
+
 /- 1.2 (2 points). Validate your answer to question 1.1 by proving the following
 theorems: -/
 
+
 theorem IsLam_lam (s : String) (t : Term) :
-    IsLam (Term.lam s t) :=
-  sorry
+    IsLam (Term.lam s t)  := True.intro
 
 theorem not_IsLamVar (s : String) :
-    ¬ IsLam (Term.var s) :=
-  sorry
+    ¬ IsLam (Term.var s) := fun t => ( False.elim t )
 
 theorem not_IsLam_app (t u : Term) :
     ¬ IsLam (Term.app t u) :=
-  sorry
-
+  fun t => (False.elim t)
 
 /- ## Question 2 (6 points): Transitive Closure
 
@@ -65,10 +67,15 @@ by adding links to the left. Another way to define the transitive closure `R⁺`
 would use replace `(step)` with the following right-leaning rule:
 
     (pets) for all `a, b, c ∈ A`, if `a R⁺ b` and `b R c`, then `a R⁺ c`.
-
+ -/
+/- 
 Define a predicate `TCV2` that embodies this alternative definition. -/
 
 -- enter your definition here
+
+inductive TCV2 {α : Type} (R : α → α → Prop) : α → α → Prop
+  | base (a b : α)   : R a b → TCV2 R a b
+  | pets (a b c : α) : TCV2 R a b -> R b c → TCV2 R a c
 
 /- 2.2 (2 points). Yet another definition of the transitive closure `R⁺` would
 use the following symmetric rule instead of `(step)` or `(pets)`:
@@ -79,17 +86,30 @@ Define a predicate `TCV3` that embodies this alternative definition. -/
 
 -- enter your definition here
 
+inductive TCV3 {α : Type} (R : α → α → Prop) : α → α → Prop
+  | base (a b : α)   : R a b → TCV3 R a b
+  | trans (a b c : α) : TCV3 R a b -> TCV3 R b c → TCV3 R a c
+
 /- 2.3 (1 point). Prove that `(step)` also holds as a theorem about `TCV3`. -/
 
 theorem TCV3_step {α : Type} (R : α → α → Prop) (a b c : α) (rab : R a b)
       (tbc : TCV3 R b c) :
-    TCV3 R a c :=
-  sorry
+    TCV3 R a c := by
+    have h := TCV3.base a b rab
+    exact TCV3.trans a b c h tbc
 
 /- 2.4 (1 point). Prove the following theorem by rule induction: -/
 
 theorem TCV1_pets {α : Type} (R : α → α → Prop) (c : α) :
-    ∀a b, TCV1 R a b → R b c → TCV1 R a c :=
-  sorry
+    ∀a b, TCV1 R a b → R b c → TCV1 R a c := by
+    intro a b
+    intro tcvRab rbc
+    have tcvRbc := TCV1.base b c rbc
+    induction tcvRab with
+    | base a' b' rab' =>
+        exact (TCV1.step a' b' c rab' tcvRbc)
+    | step a' b' c' rab' tcvRb'c' ih =>
+        have h' := ih rbc tcvRbc
+        exact (TCV1.step a' b' c rab' h')
 
 end LoVe

@@ -21,8 +21,9 @@ namespace LoVe
 end of a list. Your function should be defined by recursion and not using `++`
 (`List.append`). -/
 
-def snoc {α : Type} : List α → α → List α :=
-  sorry
+def snoc {α : Type} : List α → α → List α 
+    | [], a => [a]
+    | x::xs , a => x::(snoc xs a)
 
 /- 1.2 (1 point). Convince yourself that your definition of `snoc` works by
 testing it on a few examples. -/
@@ -36,8 +37,10 @@ testing it on a few examples. -/
 2.1 (3 points). Define a `sum` function that computes the sum of all the numbers
 in a list. -/
 
-def sum : List ℕ → ℕ :=
-  sorry
+def sum : List ℕ → ℕ
+    | [] => 0
+    | x::xs => x + (sum xs)
+
 
 #eval sum [1, 12, 3]   -- expected: 16
 
@@ -51,5 +54,17 @@ def sum : List ℕ → ℕ :=
 Try to give meaningful names to your theorems. Use `sorry` as the proof. -/
 
 -- enter your theorem statements here
+
+example: ∀ (ms: List Nat) (n: Nat) , sum (snoc ms n) = n + sum ms := by
+    intro ms n
+    induction ms with
+    | nil => rfl
+    | cons hd tail ih =>
+      unfold snoc
+      unfold sum
+      omega
+
+
+--- others are also quite standard, I've done it before in Cow, so skipping
 
 end LoVe
